@@ -1,0 +1,17 @@
+production:
+    dialect: postgres
+    datasource: sslmode=disable
+    dir: migrations
+    table: migrations
+
+development:
+    dialect: postgres
+    datasource: sslmode=disable user=postgres
+    dir: migrations
+    table: migrations
+
+test:
+    dialect: postgres
+    datasource: dbname=training_test sslmode=disable user=postgres
+    dir: migrations
+    table: migrations
