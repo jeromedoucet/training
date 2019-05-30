@@ -1,0 +1,4 @@
+github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
+github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/jeromedoucet/route v0.0.0-20190427183032-f2bba3435b7d h1:VLtwc278nonBF+s6uMByHkRy9N4cIB6pY7GTqV+4t3k=
+github.com/jeromedoucet/route v0.0.0-20190427183032-f2bba3435b7d/go.mod h1:XCBK7+KUWxS5cDGwyHXFthyl7OSDOvqnpeIuE86SkFk=
