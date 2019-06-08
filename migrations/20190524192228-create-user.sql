@@ -5,6 +5,14 @@ CREATE SCHEMA IF NOT EXISTS "tools";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA "tools";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA "tools";
 
+-- +migrate StatementBegin
+DO $$
+BEGIN
+   execute 'ALTER DATABASE '||current_database()||' SET search_path TO "public", "training", "tools"';
+END;
+$$;
+-- +migrate StatementEnd
+
 CREATE TABLE "training"."user" (
   id uuid PRIMARY KEY,
   login text NOT NULL UNIQUE,

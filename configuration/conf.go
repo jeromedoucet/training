@@ -4,11 +4,13 @@ import "fmt"
 
 // GlobalConf store db connection informations
 type GlobalConf struct {
-	DbName   string
-	User     string
-	Password string
-	Host     string
-	Port     uint
+	DbName    string
+	User      string
+	Password  string
+	Host      string
+	SslMode   bool
+	Port      uint
+	JwtSecret string
 }
 
 // DbStringConnection return the string connection that will be used
@@ -16,8 +18,12 @@ type GlobalConf struct {
 func (g GlobalConf) DbStringConnection() string {
 	var strConn string
 
+	if !g.SslMode {
+		strConn = "sslmode=disable"
+	}
+
 	if len(g.DbName) > 0 {
-		strConn = fmt.Sprintf("dbname=%s", g.DbName)
+		strConn = fmt.Sprintf("%s dbname=%s", strConn, g.DbName)
 	}
 
 	if len(g.User) > 0 {
