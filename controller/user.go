@@ -30,28 +30,32 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 		err = d.Decode(&payloadUser)
 
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest) // todo use a specific struct for error
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		if !payloadUser.CreationPayloadValid() {
+			renderError(http.StatusBadRequest, "Missing some mandatory fields", w)
 			return
 		}
 
 		user, dbErr = conn.UserDAO.Insert(ctx, payloadUser.ToModel())
 
 		if dbErr != nil {
-			res := response.Error{Message: dbErr.Message}
-			body, _ = json.Marshal(res)
+			var status int
 			if dbErr.Type == dao.CONFLICT {
-				w.WriteHeader(http.StatusConflict)
+				status = http.StatusConflict
 			} else {
-				w.WriteHeader(http.StatusInternalServerError)
+				status = http.StatusInternalServerError
 			}
-			w.Write(body)
+			renderError(status, dbErr.Message, w)
 			return
 		}
 
 		body, err = json.Marshal(response.FromUserModel(user))
 
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError) // todo handle many case
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 

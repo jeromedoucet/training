@@ -25,9 +25,11 @@ func TestUserSuite(t *testing.T) {
 	test.CleanDB(db)
 	t.Run("conflict during sign-in", conflictSignIn)
 
+	test.CleanDB(db)
+	t.Run("missing fields when sign-in", missingFieldsSignIn)
+
 	// sign - in
-	//  - identifier already exist => 409
-	//  - missing mandatory field => 400
+	//  - passwords requierments
 	// login in
 	// delete
 
@@ -92,7 +94,6 @@ func nominalSignIn(t *testing.T) {
 
 	defer resp.Body.Close()
 	payloadResp, _ := ioutil.ReadAll(resp.Body)
-	//endpoint.CheckSchema(payloadResp, componentList, t)
 
 	// check some properties of the response body
 	var createdUser *response.User
@@ -141,7 +142,6 @@ func conflictSignIn(t *testing.T) {
 
 	defer resp.Body.Close()
 	payloadResp, _ := ioutil.ReadAll(resp.Body)
-	//endpoint.CheckSchema(payloadResp, componentList, t)
 
 	// check some properties of the response body
 	var res *response.Error
@@ -149,5 +149,50 @@ func conflictSignIn(t *testing.T) {
 
 	if res.Message != "Another user already exist with this identifier" {
 		t.Fatalf("Expect %s, got %s", "Another user already exist with this identifier", res.Message)
+	}
+}
+
+func missingFieldsSignIn(t *testing.T) {
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	payload := struct {
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+		Email     string `json:"email"`
+		Password  string `json:"password"`
+	}{
+		"Jérôme",
+		"Doucet",
+		"jerdct@gmail.com",
+		"titi_123456_tata",
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/users", s.URL), bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Expected 400 return code. Got %d", resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	payloadResp, _ := ioutil.ReadAll(resp.Body)
+
+	// check some properties of the response body
+	var res *response.Error
+	json.Unmarshal(payloadResp, &res)
+
+	if res.Message != "Missing some mandatory fields" {
+		t.Fatalf("Expect %s, got %s", "Missing some mandatory fields", res.Message)
 	}
 }
