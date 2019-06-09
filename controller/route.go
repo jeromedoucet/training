@@ -12,5 +12,6 @@ func InitRoutes(c *configuration.GlobalConf) http.Handler {
 	conn := dao.Open(c)
 	router := route.NewDynamicRouter()
 	router.HandleFunc("/app/users", createUserHandlerFunc(c, conn))
+	router.HandleFunc("/app/login", authenticationHandlerFunc(c, conn))
 	return router
 }

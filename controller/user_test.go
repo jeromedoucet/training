@@ -20,7 +20,7 @@ import (
 func TestUserSuite(t *testing.T) {
 
 	test.CleanDB(db)
-	t.Run("nominal sign-in test", nominalSignIn)
+	t.Run("nominal sign-in", nominalSignIn)
 
 	test.CleanDB(db)
 	t.Run("conflict during sign-in", conflictSignIn)
@@ -28,9 +28,16 @@ func TestUserSuite(t *testing.T) {
 	test.CleanDB(db)
 	t.Run("missing fields when sign-in", missingFieldsSignIn)
 
+	test.CleanDB(db)
+	t.Run("nominal login", nominalLogIn)
+
 	// sign - in
-	//  - passwords requierments
+	//  - passwords requirements ?
 	// login in
+	//  - Nominal
+	//  - 401 bad password
+	//  - 401 inexisting user
+	//  - missing login or password
 	// delete
 
 }
@@ -194,5 +201,58 @@ func missingFieldsSignIn(t *testing.T) {
 
 	if res.Message != "Missing some mandatory fields" {
 		t.Fatalf("Expect %s, got %s", "Missing some mandatory fields", res.Message)
+	}
+}
+
+func nominalLogIn(t *testing.T) {
+	test.InsertUser(&model.User{Id: uuid.New(), Login: "jerdct", Password: "titi_123456_tata"}, db)
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	payload := struct {
+		Login    string `json:"login"`
+		Password string `json:"password"`
+	}{
+		"jerdct",
+		"titi_123456_tata",
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
+	}
+
+	header := resp.Header.Get("authorization")
+
+	if len(header) == 0 {
+		t.Fatal("Expect authorization header not to be empty")
+	}
+
+	chunck := strings.Split(strings.TrimSpace(header), " ")
+	if len(chunck) != 2 {
+		t.Fatal("Expect authorization header to have the form Bearer <TOKEN>")
+	}
+
+	var tokenValid bool
+	tokenValid, err = test.TokenValid(chunck[1], conf.JwtSecret)
+
+	if err != nil {
+		t.Fatalf("Expect no error when validating token, but get %s", err)
+	}
+
+	if !tokenValid {
+		t.Fatalf("Expect token %s to be valid", chunck[1])
 	}
 }

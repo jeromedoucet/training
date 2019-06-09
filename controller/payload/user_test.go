@@ -42,5 +42,4 @@ func TestCheckUserCreationPayloadValid(t *testing.T) {
 	if !user.CreationPayloadValid() {
 		t.Fatal("Expect user to be valid")
 	}
-
 }
