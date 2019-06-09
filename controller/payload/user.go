@@ -32,6 +32,20 @@ func (p *User) CreationPayloadValid() bool {
 	if len(p.Password) == 0 {
 		return false
 	}
+
+	return true
+}
+
+func (p *User) AuthenticationPayloadValid() bool {
+
+	if len(p.Login) == 0 {
+		return false
+	}
+
+	if len(p.Password) == 0 {
+		return false
+	}
+
 	return true
 }
 

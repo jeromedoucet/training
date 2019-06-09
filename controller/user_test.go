@@ -37,12 +37,13 @@ func TestUserSuite(t *testing.T) {
 	test.CleanDB(db)
 	t.Run("bad password login", badPasswordLogIn)
 
+	test.CleanDB(db)
+	t.Run("missing field login", MissingFieldsLogIn)
+
 	// sign - in
 	//  - passwords requirements ?
 	// login in
 	//  - Nominal
-	//  - 401 bad password
-	//  - 401 inexisting user
 	//  - missing login or password
 	// delete
 
@@ -290,7 +291,7 @@ func badIdentifierLogIn(t *testing.T) {
 	}
 
 	if resp.StatusCode != http.StatusUnauthorized {
-		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
+		t.Fatalf("Expected 401 return code. Got %d", resp.StatusCode)
 	}
 
 	header := resp.Header.Get("authorization")
@@ -327,12 +328,58 @@ func badPasswordLogIn(t *testing.T) {
 	}
 
 	if resp.StatusCode != http.StatusUnauthorized {
-		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
+		t.Fatalf("Expected 401 return code. Got %d", resp.StatusCode)
 	}
 
 	header := resp.Header.Get("authorization")
 
 	if len(header) != 0 {
 		t.Fatalf("Expect authorization header to be empty but got %s", header)
+	}
+}
+
+func MissingFieldsLogIn(t *testing.T) {
+	test.InsertUser(&model.User{Id: uuid.New(), Login: "jerdct", Password: "titi"}, db)
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	payload := struct {
+		Password string `json:"password"`
+	}{
+		"titi_123456_tata",
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Expected 400 return code. Got %d", resp.StatusCode)
+	}
+
+	header := resp.Header.Get("authorization")
+
+	if len(header) != 0 {
+		t.Fatalf("Expect authorization header to be empty but got %s", header)
+	}
+
+	defer resp.Body.Close()
+	payloadResp, _ := ioutil.ReadAll(resp.Body)
+
+	// check some properties of the response body
+	var res *response.Error
+	json.Unmarshal(payloadResp, &res)
+
+	if res.Message != "Missing some mandatory fields" {
+		t.Fatalf("Expect %s, got %s", "Missing some mandatory fields", res.Message)
 	}
 }

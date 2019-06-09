@@ -43,3 +43,23 @@ func TestCheckUserCreationPayloadValid(t *testing.T) {
 		t.Fatal("Expect user to be valid")
 	}
 }
+
+func TestCheckUserAuthenticationPayloadValid(t *testing.T) {
+	user := &payload.User{}
+
+	if user.AuthenticationPayloadValid() {
+		t.Fatal("Expect user not to be valid")
+	}
+
+	user.Login = "jerdct"
+
+	if user.AuthenticationPayloadValid() {
+		t.Fatal("Expect user not to be valid")
+	}
+
+	user.Password = "password"
+
+	if !user.AuthenticationPayloadValid() {
+		t.Fatal("Expect user to be valid")
+	}
+}

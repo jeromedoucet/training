@@ -30,6 +30,11 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 			return
 		}
 
+		if !payloadUser.AuthenticationPayloadValid() {
+			renderError(http.StatusBadRequest, "Missing some mandatory fields", w)
+			return
+		}
+
 		isAuthenticated, dbErr = conn.UserDAO.CheckPassword(ctx, payloadUser.ToModel())
 
 		if dbErr != nil {
