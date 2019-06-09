@@ -2,9 +2,11 @@ package test
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/jeromedoucet/training/configuration"
+	"github.com/jeromedoucet/training/model"
 )
 
 func Conf() *configuration.GlobalConf {
@@ -12,19 +14,27 @@ func Conf() *configuration.GlobalConf {
 }
 
 // Clean empty all table in the training model
-func CleanDB(c *configuration.GlobalConf) {
-	db, err := sql.Open("postgres", c.DbStringConnection())
-	if err != nil {
-		log.Fatalf("An error is returned during db connection %s", err.Error())
-	}
-
+func CleanDB(db *sql.DB) {
+	var err error
 	_, err = db.Exec(`TRUNCATE "user"`)
-
 	if err != nil {
-		db.Close()
 		log.Fatalf("An error is returned during db clean up %s", err.Error())
 	}
+}
 
-	db.Close()
+func InsertUser(user *model.User, db *sql.DB) {
+	var res sql.Result
+	var err error
+	res, err = db.Exec(`
+				INSERT INTO "user" ("id", "login", "first_name", "last_name", "email", "password") 
+				VALUES ($1, $2, $3, $4, $5, crypt($6, gen_salt('bf')))`, user.Id.String(), user.Login, user.FirstName, user.LastName, user.LastName, user.Password)
+
+	if err != nil {
+		log.Fatalf("An error is returned during user insertion %s", err.Error())
+	}
+
+	affectedRows, _ := res.RowsAffected()
+
+	fmt.Println(fmt.Sprintf("%d user(s) injected", affectedRows))
 
 }

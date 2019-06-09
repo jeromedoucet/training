@@ -20,6 +20,7 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 
 		var err error
+		var dbErr *dao.DbError
 		var payloadUser *payload.User
 		var user *model.User
 		var token string
@@ -33,10 +34,17 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			return
 		}
 
-		user, err = conn.UserDAO.Insert(ctx, payloadUser.ToModel(), payloadUser.Password)
+		user, dbErr = conn.UserDAO.Insert(ctx, payloadUser.ToModel())
 
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError) // todo handle many case
+		if dbErr != nil {
+			res := response.Error{Message: dbErr.Message}
+			body, _ = json.Marshal(res)
+			if dbErr.Type == dao.CONFLICT {
+				w.WriteHeader(http.StatusConflict)
+			} else {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			w.Write(body)
 			return
 		}
 

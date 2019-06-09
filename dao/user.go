@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jeromedoucet/training/model"
@@ -29,13 +30,18 @@ func createUserDAO(db *sql.DB) *UserDAO {
 }
 
 // Insert a new user
-func (u *UserDAO) Insert(ctx context.Context, user *model.User, password string) (*model.User, error) {
+func (u *UserDAO) Insert(ctx context.Context, user *model.User) (*model.User, *DbError) {
 
 	user.Id = uuid.New()
 
-	_, err := u.insertUser.ExecContext(ctx, user.Id.String(), user.Login, user.FirstName, user.LastName, user.Email, password)
+	_, err := u.insertUser.ExecContext(ctx, user.Id.String(), user.Login, user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
-		return nil, err
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "user_login_key") {
+			return nil, &DbError{Message: "Another user already exist with this identifier", Type: CONFLICT}
+		} else {
+			return nil, &DbError{Message: errMsg, Type: UNKNOWN}
+		}
 	}
 
 	return user, nil

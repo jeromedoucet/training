@@ -5,12 +5,11 @@ import (
 )
 
 // User represent an ... hmm user of training.
-// note that for security purposed, the password is not
-// strored here.
 type User struct {
 	Id        uuid.UUID
 	Login     string
 	FirstName string
 	LastName  string
 	Email     string
+	Password  string
 }
