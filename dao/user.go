@@ -28,7 +28,7 @@ func createUserDAO(db *sql.DB) *UserDAO {
 	}
 
 	if u.checkPassword, err = u.db.Prepare(`
-SELECT "id" FROM "user" WHERE "login" = $1 AND "password" = crypt($2, "password")
+		SELECT "id" FROM "user" WHERE "login" = $1 AND "password" = crypt($2, "password")
 	`); err != nil {
 		log.Fatalf("An error is returned during checkPassword statement initialization %s", err.Error())
 	}

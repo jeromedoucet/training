@@ -31,6 +31,12 @@ func TestUserSuite(t *testing.T) {
 	test.CleanDB(db)
 	t.Run("nominal login", nominalLogIn)
 
+	test.CleanDB(db)
+	t.Run("bad identifier login", badIdentifierLogIn)
+
+	test.CleanDB(db)
+	t.Run("bad password login", badPasswordLogIn)
+
 	// sign - in
 	//  - passwords requirements ?
 	// login in
@@ -254,5 +260,79 @@ func nominalLogIn(t *testing.T) {
 
 	if !tokenValid {
 		t.Fatalf("Expect token %s to be valid", chunck[1])
+	}
+}
+
+func badIdentifierLogIn(t *testing.T) {
+	test.InsertUser(&model.User{Id: uuid.New(), Login: "titi", Password: "titi_123456_tata"}, db)
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	payload := struct {
+		Login    string `json:"login"`
+		Password string `json:"password"`
+	}{
+		"jerdct",
+		"titi_123456_tata",
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
+	}
+
+	header := resp.Header.Get("authorization")
+
+	if len(header) != 0 {
+		t.Fatalf("Expect authorization header to be empty but got %s", header)
+	}
+}
+
+func badPasswordLogIn(t *testing.T) {
+	test.InsertUser(&model.User{Id: uuid.New(), Login: "jerdct", Password: "titi"}, db)
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	payload := struct {
+		Login    string `json:"login"`
+		Password string `json:"password"`
+	}{
+		"jerdct",
+		"titi_123456_tata",
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
+	}
+
+	header := resp.Header.Get("authorization")
+
+	if len(header) != 0 {
+		t.Fatalf("Expect authorization header to be empty but got %s", header)
 	}
 }

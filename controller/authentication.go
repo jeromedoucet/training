@@ -39,6 +39,7 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 
 		if !isAuthenticated {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 
 		token, err = createToken(c.JwtSecret, time.Now().Add(time.Minute*10))
