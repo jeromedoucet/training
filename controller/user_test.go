@@ -42,9 +42,6 @@ func TestUserSuite(t *testing.T) {
 
 	// sign - in
 	//  - passwords requirements ?
-	// login in
-	//  - Nominal
-	//  - missing login or password
 	// delete
 
 }
