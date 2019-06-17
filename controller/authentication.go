@@ -3,13 +3,14 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/csrf"
 	"github.com/jeromedoucet/training/configuration"
 	"github.com/jeromedoucet/training/controller/payload"
+	"github.com/jeromedoucet/training/controller/security"
 	"github.com/jeromedoucet/training/dao"
 )
 
@@ -20,7 +21,6 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 		var isAuthenticated bool
 
 		var dbErr *dao.DbError
-		var token string
 
 		d := json.NewDecoder(r.Body)
 		err = d.Decode(&payloadUser)
@@ -47,7 +47,7 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 			return
 		}
 
-		token, err = createToken(c.JwtSecret, time.Now().Add(time.Minute*10))
+		err = security.SetAuthCookie(w, c.JwtSecret, time.Now().Add(time.Minute*10))
 
 		if err != nil {
 			log.Println("Error when encoding the token: ", err)
@@ -55,8 +55,8 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 			return
 		}
 
+		w.Header().Set("X-CSRF-Token", csrf.Token(r))
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("authorization", fmt.Sprintf("Bearer %s", token))
 
 	}
 }

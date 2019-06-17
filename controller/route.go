@@ -11,19 +11,19 @@ import (
 
 func InitRoutes(c *configuration.GlobalConf) http.Handler {
 	conn := dao.Open(c)
-	dRouter := route.NewDynamicRouter()
+	pRouter := route.NewDynamicRouter()
 
-	dRouter.HandleFunc("/app/users", createUserHandlerFunc(c, conn))
-	dRouter.HandleFunc("/app/login", authenticationHandlerFunc(c, conn))
+	pRouter.HandleFunc("/app/public/users", createUserHandlerFunc(c, conn))
+	pRouter.HandleFunc("/app/public/login", authenticationHandlerFunc(c, conn))
 
 	return &trainingRouter{
-		xhrHandler:    dRouter,
+		xhrHandler:    pRouter,
 		staticHandler: http.FileServer(http.Dir("front/dist")),
 	}
 }
 
 type trainingRouter struct {
-	xhrHandler    *route.DynamicRouter
+	xhrHandler    http.Handler
 	staticHandler http.Handler
 }
 
@@ -33,5 +33,4 @@ func (r *trainingRouter) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	} else {
 		r.staticHandler.ServeHTTP(res, req)
 	}
-
 }

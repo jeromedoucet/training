@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -44,6 +43,8 @@ func TestUserSuite(t *testing.T) {
 	//  - passwords requirements ?
 	// delete
 
+	// todo refresh token ? csrf token ?
+
 }
 
 func nominalSignIn(t *testing.T) {
@@ -66,7 +67,7 @@ func nominalSignIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/users", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/users", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -81,27 +82,7 @@ func nominalSignIn(t *testing.T) {
 		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
 	}
 
-	header := resp.Header.Get("authorization")
-
-	if len(header) == 0 {
-		t.Fatal("Expect authorization header not to be empty")
-	}
-
-	chunck := strings.Split(strings.TrimSpace(header), " ")
-	if len(chunck) != 2 {
-		t.Fatal("Expect authorization header to have the form Bearer <TOKEN>")
-	}
-
-	var tokenValid bool
-	tokenValid, err = test.TokenValid(chunck[1], conf.JwtSecret)
-
-	if err != nil {
-		t.Fatalf("Expect no error when validating token, but get %s", err)
-	}
-
-	if !tokenValid {
-		t.Fatalf("Expect token %s to be valid", chunck[1])
-	}
+	test.CheckAuthCookie(resp.Cookies(), conf, t)
 
 	defer resp.Body.Close()
 	payloadResp, _ := ioutil.ReadAll(resp.Body)
@@ -136,7 +117,7 @@ func conflictSignIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/users", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/users", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -181,7 +162,7 @@ func missingFieldsSignIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/users", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/users", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -223,7 +204,7 @@ func nominalLogIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/login", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -238,27 +219,7 @@ func nominalLogIn(t *testing.T) {
 		t.Fatalf("Expected 200 return code. Got %d", resp.StatusCode)
 	}
 
-	header := resp.Header.Get("authorization")
-
-	if len(header) == 0 {
-		t.Fatal("Expect authorization header not to be empty")
-	}
-
-	chunck := strings.Split(strings.TrimSpace(header), " ")
-	if len(chunck) != 2 {
-		t.Fatal("Expect authorization header to have the form Bearer <TOKEN>")
-	}
-
-	var tokenValid bool
-	tokenValid, err = test.TokenValid(chunck[1], conf.JwtSecret)
-
-	if err != nil {
-		t.Fatalf("Expect no error when validating token, but get %s", err)
-	}
-
-	if !tokenValid {
-		t.Fatalf("Expect token %s to be valid", chunck[1])
-	}
+	test.CheckAuthCookie(resp.Cookies(), conf, t)
 }
 
 func badIdentifierLogIn(t *testing.T) {
@@ -276,7 +237,7 @@ func badIdentifierLogIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/login", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -313,7 +274,7 @@ func badPasswordLogIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/login", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -348,7 +309,7 @@ func MissingFieldsLogIn(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/login", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/login", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
@@ -363,10 +324,9 @@ func MissingFieldsLogIn(t *testing.T) {
 		t.Fatalf("Expected 400 return code. Got %d", resp.StatusCode)
 	}
 
-	header := resp.Header.Get("authorization")
+	if test.GetCookieByName(resp.Cookies(), "auth") != nil {
+		t.Fatal("Expect to have no auth cookie, but got one")
 
-	if len(header) != 0 {
-		t.Fatalf("Expect authorization header to be empty but got %s", header)
 	}
 
 	defer resp.Body.Close()
