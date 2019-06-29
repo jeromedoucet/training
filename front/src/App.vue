@@ -21,7 +21,15 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
+// Bulma + Bulmaswatch
+@import "node_modules/bulmaswatch/darkly/variables";
+@import "node_modules/bulma/bulma";
+@import "node_modules/bulmaswatch/darkly/overrides";
+
+// Buefy
+@import "node_modules/buefy/src/scss/buefy";
+
 .r-link {
   display: inherit;
 }

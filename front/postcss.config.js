@@ -2,7 +2,7 @@ module.exports = {
   plugins: {
     autoprefixer: {}
   },
-    module: {
+  module: {
     rules: [
       // ... other rules omitted
 
@@ -17,5 +17,5 @@ module.exports = {
         ]
       }
     ]
-  },
+  }
 }
