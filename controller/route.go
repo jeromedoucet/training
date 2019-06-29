@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/jeromedoucet/route"
 	"github.com/jeromedoucet/training/configuration"
@@ -11,26 +10,22 @@ import (
 
 func InitRoutes(c *configuration.GlobalConf) http.Handler {
 	conn := dao.Open(c)
-	pRouter := route.NewDynamicRouter()
+	router := route.NewDynamicRouter()
 
-	pRouter.HandleFunc("/app/public/users", createUserHandlerFunc(c, conn))
-	pRouter.HandleFunc("/app/public/login", authenticationHandlerFunc(c, conn))
+	router.HandleFunc("/app/public/users", createUserHandlerFunc(c, conn))
+	router.HandleFunc("/app/public/login", authenticationHandlerFunc(c, conn))
+
+	router.ServeStaticAt("front/dist/", route.Spa)
 
 	return &trainingRouter{
-		xhrHandler:    pRouter,
-		staticHandler: http.FileServer(http.Dir("front/dist")),
+		handler: router,
 	}
 }
 
 type trainingRouter struct {
-	xhrHandler    http.Handler
-	staticHandler http.Handler
+	handler http.Handler
 }
 
 func (r *trainingRouter) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	if strings.Contains(req.URL.Path, "app/") {
-		r.xhrHandler.ServeHTTP(res, req)
-	} else {
-		r.staticHandler.ServeHTTP(res, req)
-	}
+	r.handler.ServeHTTP(res, req)
 }
