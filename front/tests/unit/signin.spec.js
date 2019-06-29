@@ -17,8 +17,6 @@ const router = new VueRouter({
 
 const createSignIn = propsData => mount(SignIn, { propsData, localVue, router })
 
-// cas nominal => appel back + renvoi du token (mock) + vérification "on est loggé" (local storage). TODO => voir comment on peut gérer la redirection (e2e ?)
-//
 // Endpoint de test d'authentication
 //
 // cas retour erreur serveur => affichage d'une erreur

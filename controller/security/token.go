@@ -16,7 +16,9 @@ func SetAuthCookie(w http.ResponseWriter, secret string, exp time.Time) error {
 	c := &http.Cookie{
 		Name:     "auth",
 		Value:    t,
+		Path:     "/",
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(w, c)

@@ -51,5 +51,5 @@ func (p *User) AuthenticationPayloadValid() bool {
 
 // ToModel turn a user request payload into a model structure
 func (p *User) ToModel() *model.User {
-	return &model.User{Login: p.Login, FirstName: p.FirstName, LastName: p.LastName, Email: p.LastName, Password: p.Password}
+	return &model.User{Login: p.Login, FirstName: p.FirstName, LastName: p.LastName, Email: p.Email, Password: p.Password}
 }
