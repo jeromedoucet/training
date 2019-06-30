@@ -8,3 +8,12 @@ export function createUser (form) {
   })
     .then(handleResponse)
 }
+
+export function login (form) {
+  return fetch('/app/public/login', {
+    method: 'POST',
+    credentials: 'same-origin',
+    body: JSON.stringify(form)
+  })
+    .then(handleResponse)
+}

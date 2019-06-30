@@ -43,7 +43,7 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 		}
 
 		if !isAuthenticated {
-			w.WriteHeader(http.StatusUnauthorized)
+			renderError(http.StatusUnauthorized, "Wrong credentials.", w)
 			return
 		}
 

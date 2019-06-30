@@ -15,7 +15,7 @@ const router = new VueRouter({
   routes: []
 })
 
-const createSignIn = propsData => mount(SignIn, { propsData, localVue, router })
+const createSignIn = propsData => mount(SignIn, { sync: false, propsData, localVue, router })
 
 // Endpoint de test d'authentication
 //
