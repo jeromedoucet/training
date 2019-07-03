@@ -15,7 +15,7 @@ func InitRoutes(c *configuration.GlobalConf) http.Handler {
 	router.HandleFunc("/app/public/users", createUserHandlerFunc(c, conn))
 	router.HandleFunc("/app/public/login", authenticationHandlerFunc(c, conn))
 
-	router.ServeStaticAt("front/dist/", route.Spa)
+	router.ServeStaticAt("./front/dist/", route.Spa)
 
 	return &trainingRouter{
 		handler: router,

@@ -10,6 +10,15 @@ github.com/jeromedoucet/route v0.0.0-20190427183032-f2bba3435b7d h1:VLtwc278nonB
 github.com/jeromedoucet/route v0.0.0-20190427183032-f2bba3435b7d/go.mod h1:XCBK7+KUWxS5cDGwyHXFthyl7OSDOvqnpeIuE86SkFk=
 github.com/jeromedoucet/route v0.0.0-20190629142311-e2d9f700401d h1:Ozk9fs9sA4RrPXEVuNqlg9To1JtanTbINddHnz35hj4=
 github.com/jeromedoucet/route v0.0.0-20190629142311-e2d9f700401d/go.mod h1:XCBK7+KUWxS5cDGwyHXFthyl7OSDOvqnpeIuE86SkFk=
+github.com/jeromedoucet/route v0.0.0-20190630111159-ad6959b03673 h1:STYGX2ccnDIDcPCvnVUHrio5M2xmE0Yjnbv+H5Uve00=
+github.com/jeromedoucet/route v0.0.0-20190630111159-ad6959b03673/go.mod h1:XCBK7+KUWxS5cDGwyHXFthyl7OSDOvqnpeIuE86SkFk=
+github.com/jeromedoucet/route v0.0.0-20190630112914-92dee86ee288 h1:aorbb18EgVedpsi9whtGKAt5UuXAwm+ED2o3dnN3h14=
+github.com/jeromedoucet/route v0.0.0-20190630112914-92dee86ee288/go.mod h1:YjJRv5KDSyfTMYPHP58+Se8C0iZQU57SU3MNpfMaL8Q=
+github.com/jeromedoucet/route v0.0.0-20190630114024-9964d09e4e22 h1:ENTOCsgD28EUC7odXlhHP7t3p1A23poGzm917Pxt/R8=
+github.com/jeromedoucet/route v0.0.0-20190630114024-9964d09e4e22/go.mod h1:YjJRv5KDSyfTMYPHP58+Se8C0iZQU57SU3MNpfMaL8Q=
+github.com/jeromedoucet/route v0.0.0-20190630115637-b6462c5f4bfe h1:IFWC5CRCn1dxW13kYptMjLiIRct5a9JFNIOp8s7R6sk=
+github.com/jeromedoucet/route v0.0.0-20190630115637-b6462c5f4bfe/go.mod h1:YjJRv5KDSyfTMYPHP58+Se8C0iZQU57SU3MNpfMaL8Q=
+github.com/jeromedoucet/training v0.0.0-20190630102117-68cc97207e9a/go.mod h1:B7rLKJgKYngs/6oLM72fK/cYHl6Gc9b8i1DrmZ2sWJQ=
 github.com/lib/pq v1.1.1 h1:sJZmqHoEaY7f+NPP8pgLB/WxulyR3fewgCM2qaSlBb4=
 github.com/lib/pq v1.1.1/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=

@@ -9,8 +9,9 @@
         </router-link>
       </div>
       <div class="navbar-end">
-        <router-link class="r-link" to="/login"><a class="navbar-item">Login</a></router-link>
-        <router-link class="r-link" to="/sign-in"><a class="navbar-item">Sign in</a></router-link>
+        <router-link v-show="!isAuth()" id="login-link" class="r-link" to="/login"><a class="navbar-item">Login</a></router-link>
+        <router-link v-show="!isAuth()" id="sign-in-link" class="r-link" to="/sign-in"><a class="navbar-item">Sign in</a></router-link>
+        <a id="logout-link" v-show="isAuth()" class="navbar-item">Logout</a>
       </div>
     </nav>
     <div>
@@ -20,6 +21,17 @@
     </div>
   </div>
 </template>
+<script>
+import { isAuth } from '@/state/user'
+export default {
+  methods: {
+    isAuth: function () {
+      return isAuth()
+    }
+  }
+}
+
+</script>
 
 <style lang="scss">
 // Bulma + Bulmaswatch
