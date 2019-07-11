@@ -17,3 +17,11 @@ export function login (form) {
   })
     .then(handleResponse)
 }
+
+export function logout () {
+  return fetch('/app/public/logout', {
+    method: 'POST',
+    credentials: 'same-origin'
+  })
+    .then(handleResponse)
+}

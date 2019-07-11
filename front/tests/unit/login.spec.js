@@ -4,23 +4,26 @@ import fetchMock from 'fetch-mock'
 import Buefy from 'buefy'
 import VeeValidate from 'vee-validate';
 import VueRouter from 'vue-router'
+import Vuex from 'vuex'
+import store from '@/store'
 import Login from '@/views/Login.vue'
 
 const localVue = createLocalVue()
 localVue.use(VeeValidate);
 localVue.use(Buefy)
 localVue.use(VueRouter)
+localVue.use(Vuex)
 
 const router = new VueRouter({
   routes: []
 })
 
-const createLogin = propsData => mount(Login, { sync: false, propsData, localVue, router })
+const createLogin = propsData => mount(Login, { sync: false, propsData, store, localVue, router })
 
 describe('login', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await store.commit('user/logout')
     jest.clearAllMocks()
-    localStorage.setItem('authenticated', '0')
   })
 
   it("Should log a user in and redirect to '/'", async () => {
@@ -43,8 +46,7 @@ describe('login', () => {
     // then
     expect(cmp.vm.$router.push.mock.calls.length).toBe(1)
     expect(cmp.vm.$router.push.mock.calls[0][0]).toBe('/')
-    expect(localStorage.getItem('authenticated')).toBe('1')
-
+    expect(store.state.user.authenticated).toBe(true)
   });
 
   it("Should print an error message when issue happend", async () => {
@@ -69,8 +71,7 @@ describe('login', () => {
 
     // then
     expect(cmp.vm.$router.push.mock.calls.length).toBe(0)
-    expect(localStorage.getItem('authenticated')).toBe('0')
+    expect(store.state.user.authenticated).toBe(false)
     expect(cmp.vm.errorMessage).toBe('Wrong credentials.')
-
   });
 });

@@ -73,7 +73,7 @@ export default {
       evt.preventDefault()
       try {
         await login(this.form)
-        localStorage.setItem('authenticated', '1')
+        await this.$store.commit('user/login')
         this.$router.push('/')
       } catch (error) {
         this.errorMessage = error.message

@@ -9,9 +9,9 @@
         </router-link>
       </div>
       <div class="navbar-end">
-        <router-link v-show="!isAuth()" id="login-link" class="r-link" to="/login"><a class="navbar-item">Login</a></router-link>
-        <router-link v-show="!isAuth()" id="sign-in-link" class="r-link" to="/sign-in"><a class="navbar-item">Sign in</a></router-link>
-        <a id="logout-link" v-show="isAuth()" class="navbar-item">Logout</a>
+        <router-link v-show="!authenticated" id="login-link" class="r-link" to="/login"><a class="navbar-item">Login</a></router-link>
+        <router-link v-show="!authenticated" id="sign-in-link" class="r-link" to="/sign-in"><a class="navbar-item">Sign in</a></router-link>
+        <a id="logout-link" v-show="authenticated" class="navbar-item">Logout</a>
       </div>
     </nav>
     <div>
@@ -22,11 +22,24 @@
   </div>
 </template>
 <script>
-import { isAuth } from '@/state/user'
+
+import { logout } from '@/requests/user'
+
 export default {
+  computed: {
+    authenticated () {
+      return !!this.$store.state.user.authenticated
+    }
+  },
   methods: {
-    isAuth: function () {
-      return isAuth()
+    onLogout: async function (evt) {
+      evt.preventDefault()
+      try {
+        await logout()
+        await this.$store.commit('user/logout')
+      } catch (error) {
+        //this.errorMessage = error.message
+      }
     }
   }
 }
