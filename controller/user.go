@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/csrf"
 	"github.com/jeromedoucet/training/configuration"
 	"github.com/jeromedoucet/training/controller/payload"
 	"github.com/jeromedoucet/training/controller/response"
@@ -58,7 +57,7 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			return
 		}
 
-		err = security.SetAuthCookie(w, c.JwtSecret, time.Now().Add(time.Minute*10))
+		err = security.SetAuthCookie(w, c.JwtSecret, time.Now().Add(c.JwtExpiration), user.Id)
 
 		if err != nil {
 			log.Println("Error when encoding the token: ", err)
@@ -66,7 +65,6 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			return
 		}
 
-		w.Header().Set("X-CSRF-Token", csrf.Token(r))
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(body)
 	}

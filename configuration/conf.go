@@ -1,16 +1,20 @@
 package configuration
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // GlobalConf store db connection informations
 type GlobalConf struct {
-	DbName    string
-	User      string
-	Password  string
-	Host      string
-	SslMode   bool
-	Port      uint
-	JwtSecret string
+	DbName        string
+	User          string
+	Password      string
+	Host          string
+	SslMode       bool
+	Port          uint
+	JwtSecret     string
+	JwtExpiration time.Duration
 }
 
 // DbStringConnection return the string connection that will be used

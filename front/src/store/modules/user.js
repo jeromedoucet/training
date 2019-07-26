@@ -9,7 +9,7 @@ const mutations = {
 
   logout (state) {
     state.authenticated = false
-  },
+  }
 }
 
 export default {

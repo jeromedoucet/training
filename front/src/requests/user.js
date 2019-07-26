@@ -20,7 +20,7 @@ export function login (form) {
 
 export function logout () {
   return fetch('/app/public/logout', {
-    method: 'POST',
+    method: 'HEAD',
     credentials: 'same-origin'
   })
     .then(handleResponse)

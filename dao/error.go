@@ -3,8 +3,9 @@ package dao
 type DbErrorType string
 
 const (
-	CONFLICT DbErrorType = "conflict"
-	UNKNOWN  DbErrorType = "unknown"
+	CONFLICT  DbErrorType = "conflict"
+	UNKNOWN   DbErrorType = "unknown"
+	NOT_FOUND DbErrorType = "not_found"
 )
 
 // DbError allow to give more context when an error happend

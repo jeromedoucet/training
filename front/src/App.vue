@@ -11,7 +11,7 @@
       <div class="navbar-end">
         <router-link v-show="!authenticated" id="login-link" class="r-link" to="/login"><a class="navbar-item">Login</a></router-link>
         <router-link v-show="!authenticated" id="sign-in-link" class="r-link" to="/sign-in"><a class="navbar-item">Sign in</a></router-link>
-        <a id="logout-link" v-show="authenticated" class="navbar-item">Logout</a>
+        <a id="logout-link" v-show="authenticated" @click="onLogout" class="navbar-item">Logout</a>
       </div>
     </nav>
     <div>

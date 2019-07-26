@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 	"github.com/jeromedoucet/training/configuration"
 )
 
-func CheckAuthCookie(cookies []*http.Cookie, conf *configuration.GlobalConf, t *testing.T) {
-	var err error
-
+func CheckAuthCookie(cookies []*http.Cookie, conf *configuration.GlobalConf, t *testing.T) *jwt.Token {
 	cookie := GetCookieByName(cookies, "auth")
 
 	if cookie == nil {
@@ -22,16 +22,21 @@ func CheckAuthCookie(cookies []*http.Cookie, conf *configuration.GlobalConf, t *
 		t.Fatal("Expect the token to be httpOnly, but it is not")
 	}
 
-	var tokenValid bool
-	tokenValid, err = TokenValid(cookie.Value, conf.JwtSecret)
+	if cookie.Expires.IsZero() {
+		t.Fatal("Expected Expire to be set")
+	}
+
+	token, err := ExtractToken(cookie.Value, conf.JwtSecret)
 
 	if err != nil {
 		t.Fatalf("Expect no error when validating token, but get %s", err)
 	}
 
-	if !tokenValid {
+	if !token.Valid {
 		t.Fatalf("Expect token %s to be valid", cookie.Value)
 	}
+
+	return token
 }
 
 func GetCookieByName(cookies []*http.Cookie, name string) *http.Cookie {
@@ -43,7 +48,7 @@ func GetCookieByName(cookies []*http.Cookie, name string) *http.Cookie {
 	return nil
 }
 
-func TokenValid(tokenString string, jwtSecret string) (res bool, err error) {
+func ExtractToken(tokenString string, jwtSecret string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -51,10 +56,18 @@ func TokenValid(tokenString string, jwtSecret string) (res bool, err error) {
 
 		return []byte(jwtSecret), nil
 	})
+	return token, err
+}
 
+func CreateToken(secret string, exp time.Time, id uuid.UUID, t *testing.T) string {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": exp.Unix(),
+		"sub": id.String(),
+	})
+	res, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return false, err
+		t.Fatalf("Got error %s when creating token for the test", err.Error())
+		return ""
 	}
-
-	return token.Valid, nil
+	return res
 }

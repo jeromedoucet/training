@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/jeromedoucet/training/configuration"
 	"github.com/jeromedoucet/training/controller"
@@ -40,13 +41,14 @@ func main() {
 	signal.Notify(stop, os.Interrupt)
 
 	conf := &configuration.GlobalConf{
-		DbName:    dbName,
-		User:      dbUser,
-		Password:  dbPassword,
-		Host:      dbHost,
-		Port:      dbPort,
-		SslMode:   dbSslMode,
-		JwtSecret: jwtSecret,
+		DbName:        dbName,
+		User:          dbUser,
+		Password:      dbPassword,
+		Host:          dbHost,
+		Port:          dbPort,
+		SslMode:       dbSslMode,
+		JwtSecret:     jwtSecret,
+		JwtExpiration: 720 * time.Hour,
 	}
 	h := controller.InitRoutes(conf)
 

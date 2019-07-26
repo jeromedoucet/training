@@ -46,7 +46,7 @@ describe('app', () => {
     const cmp = createApp()
 
     const evt = { preventDefault: jest.fn() }
-    fetchMock.postOnce((url, opt) => {
+    fetchMock.headOnce((url, opt) => {
       return (
         url === '/app/public/logout'
       )

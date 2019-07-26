@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jeromedoucet/training/configuration"
 	"github.com/jeromedoucet/training/model"
 )
 
 func Conf() *configuration.GlobalConf {
-	return &configuration.GlobalConf{DbName: "training_test", User: "postgres"}
+	return &configuration.GlobalConf{DbName: "training_test", User: "postgres", JwtExpiration: 120 * time.Minute}
 }
 
 // Clean empty all table in the training model
