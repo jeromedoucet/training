@@ -38,7 +38,6 @@ export default {
         await logout()
         await this.$store.commit('user/logout')
       } catch (error) {
-        //this.errorMessage = error.message
       }
     }
   }

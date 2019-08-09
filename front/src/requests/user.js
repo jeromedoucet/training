@@ -25,3 +25,11 @@ export function logout () {
   })
     .then(handleResponse)
 }
+
+export function getSession () {
+  return fetch('/app/public/session', {
+    method: 'GET',
+    credentials: 'same-origin'
+  })
+    .then(handleResponse)
+}
