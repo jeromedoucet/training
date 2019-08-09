@@ -17,14 +17,15 @@ import (
 	"github.com/jeromedoucet/training/test"
 )
 
-// create 400
-// create 401
-
 func TestPlanSuite(t *testing.T) {
 
 	test.CleanDB(db)
 	t.Run("nominal training creation", nominalPlanCreation)
 
+	test.CleanDB(db)
+	t.Run("missing field training creation", missingFieldPlanCreation)
+
+	// create 401
 }
 
 func nominalPlanCreation(t *testing.T) {
@@ -94,5 +95,51 @@ func nominalPlanCreation(t *testing.T) {
 
 	if createdPlan.TraineeId != payload.TraineeId {
 		t.Fatalf("Expect %s, got %s", payload.TraineeId, createdPlan.TraineeId)
+	}
+}
+
+func missingFieldPlanCreation(t *testing.T) {
+	userId := uuid.New()
+	test.InsertUser(&model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}, db)
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	expTime := time.Now().Add(2 * time.Minute)
+
+	tok := test.CreateToken(conf.JwtSecret, expTime, userId, t)
+
+	c := &http.Cookie{
+		Name:     "auth",
+		Value:    tok,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  expTime,
+	}
+
+	payload := struct {
+		Name      string `json:"name"`
+		TraineeId string `json:"trainee_id"`
+	}{
+		"Training plan",
+		userId.String(),
+	}
+
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plan", s.URL), bytes.NewBuffer(body))
+	req.AddCookie(c)
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("Expected 400 return code. Got %d ", resp.StatusCode)
 	}
 }

@@ -50,7 +50,6 @@ func createPlanHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-
 		w.Write(body)
 	}
 }
