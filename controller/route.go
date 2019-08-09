@@ -15,6 +15,7 @@ func InitRoutes(c *configuration.GlobalConf) http.Handler {
 	router.HandleFunc("/app/public/users", createUserHandlerFunc(c, conn))
 	router.HandleFunc("/app/public/login", authenticationHandlerFunc(c, conn))
 	router.HandleFunc("/app/public/logout", logoutHandlerFunc(c, conn))
+	router.HandleFunc("/app/public/plan", createPlanHandlerFunc(c, conn))
 
 	/*
 	 * this route will return the connected user and refresh the token. Return 401 otherwise

@@ -13,6 +13,7 @@ import (
 type Conn struct {
 	db      *sql.DB
 	UserDAO *UserDAO
+	PlanDAO *PlanDAO
 }
 
 // Open init connection to database and init all prepared statement.
@@ -25,6 +26,7 @@ func Open(conf *configuration.GlobalConf) (conn *Conn) {
 
 	res := &Conn{db: db}
 	res.UserDAO = createUserDAO(res.db)
+	res.PlanDAO = createPlanDAO(res.db)
 
 	return res
 }

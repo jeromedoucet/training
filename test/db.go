@@ -17,7 +17,7 @@ func Conf() *configuration.GlobalConf {
 // Clean empty all table in the training model
 func CleanDB(db *sql.DB) {
 	var err error
-	_, err = db.Exec(`TRUNCATE "user"`)
+	_, err = db.Exec(`TRUNCATE "plan", "user"`)
 	if err != nil {
 		log.Fatalf("An error is returned during db clean up %s", err.Error())
 	}
