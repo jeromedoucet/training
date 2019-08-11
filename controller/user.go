@@ -33,7 +33,7 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 		}
 
 		if !payloadUser.CreationPayloadValid() {
-			renderError(http.StatusBadRequest, "Missing some mandatory fields", w)
+			response.RenderError(http.StatusBadRequest, "Missing some mandatory fields", w)
 			return
 		}
 
@@ -46,7 +46,7 @@ func createUserHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			} else {
 				status = http.StatusInternalServerError
 			}
-			renderError(status, dbErr.Message, w)
+			response.RenderError(status, dbErr.Message, w)
 			return
 		}
 

@@ -22,13 +22,13 @@ func checkAuthHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(http
 		if cookie != nil {
 			token, err := security.ExtractToken(cookie.Value, c.JwtSecret)
 			if err != nil || !token.Valid {
-				renderError(http.StatusUnauthorized, "invalid token", w)
+				response.RenderError(http.StatusUnauthorized, "invalid token", w)
 				return false
 			} else {
 				return true
 			}
 		} else {
-			renderError(http.StatusUnauthorized, "no token", w)
+			response.RenderError(http.StatusUnauthorized, "no token", w)
 			return false
 		}
 	}
@@ -52,7 +52,7 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 		}
 
 		if !payloadUser.AuthenticationPayloadValid() {
-			renderError(http.StatusBadRequest, "Missing some mandatory fields", w)
+			response.RenderError(http.StatusBadRequest, "Missing some mandatory fields", w)
 			return
 		}
 
@@ -60,9 +60,9 @@ func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func
 
 		if dbErr != nil {
 			if dbErr.Type == dao.NOT_FOUND {
-				renderError(http.StatusUnauthorized, dbErr.Message, w)
+				response.RenderError(http.StatusUnauthorized, dbErr.Message, w)
 			} else {
-				renderError(http.StatusInternalServerError, dbErr.Message, w)
+				response.RenderError(http.StatusInternalServerError, dbErr.Message, w)
 			}
 			return
 		}
@@ -104,7 +104,7 @@ func getSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			token, err := security.ExtractToken(cookie.Value, c.JwtSecret)
 			if err != nil || !token.Valid {
 				security.UnvalidatedAuthCookie(w, r)
-				renderError(http.StatusUnauthorized, "invalid token", w)
+				response.RenderError(http.StatusUnauthorized, "invalid token", w)
 				return
 			}
 
@@ -115,7 +115,7 @@ func getSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 
 			if dbErr != nil {
 				log.Println("Error when fetching the user: ", dbErr.Message)
-				renderError(http.StatusInternalServerError, dbErr.Message, w)
+				response.RenderError(http.StatusInternalServerError, dbErr.Message, w)
 				return
 			}
 
@@ -123,7 +123,7 @@ func getSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 
 			if err != nil {
 				log.Println("Error when encoding the token: ", err)
-				renderError(http.StatusInternalServerError, err.Error(), w)
+				response.RenderError(http.StatusInternalServerError, err.Error(), w)
 				return
 			}
 
@@ -131,7 +131,7 @@ func getSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 
 			if err != nil {
 				log.Println("Error when marshaling the response: ", err)
-				renderError(http.StatusInternalServerError, err.Error(), w)
+				response.RenderError(http.StatusInternalServerError, err.Error(), w)
 				return
 			}
 
@@ -139,7 +139,7 @@ func getSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 			w.Write(body)
 
 		} else {
-			renderError(http.StatusUnauthorized, "not authenticated", w)
+			response.RenderError(http.StatusUnauthorized, "not authenticated", w)
 		}
 	}
 }

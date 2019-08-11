@@ -1,4 +1,4 @@
-package controller
+package plan
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/jeromedoucet/training/model"
 )
 
-func createPlanHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(context.Context, http.ResponseWriter, *http.Request) {
+func CreatePlanHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(context.Context, http.ResponseWriter, *http.Request) {
 	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		var err error
 		var dbErr *dao.DbError
@@ -31,14 +31,14 @@ func createPlanHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(con
 		plan, err = payloadPlan.ToModel()
 
 		if err != nil {
-			renderError(http.StatusBadRequest, err.Error(), w)
+			response.RenderError(http.StatusBadRequest, err.Error(), w)
 			return
 		}
 
 		plan, dbErr = conn.PlanDAO.Insert(ctx, plan)
 
 		if dbErr != nil {
-			renderError(http.StatusInternalServerError, dbErr.Message, w)
+			response.RenderError(http.StatusInternalServerError, dbErr.Message, w)
 			return
 		}
 

@@ -1,4 +1,4 @@
-package controller_test
+package plan_test
 
 import (
 	"bytes"
