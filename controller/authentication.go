@@ -16,6 +16,24 @@ import (
 	"github.com/jeromedoucet/training/model"
 )
 
+func checkAuthHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(http.ResponseWriter, *http.Request) bool {
+	return func(w http.ResponseWriter, r *http.Request) bool {
+		cookie := security.GetAuthCookie(r)
+		if cookie != nil {
+			token, err := security.ExtractToken(cookie.Value, c.JwtSecret)
+			if err != nil || !token.Valid {
+				renderError(http.StatusUnauthorized, "invalid token", w)
+				return false
+			} else {
+				return true
+			}
+		} else {
+			renderError(http.StatusUnauthorized, "no token", w)
+			return false
+		}
+	}
+}
+
 func authenticationHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) func(context.Context, http.ResponseWriter, *http.Request) {
 	return func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		var err error
