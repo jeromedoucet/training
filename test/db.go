@@ -37,5 +37,19 @@ func InsertUser(user *model.User, db *sql.DB) {
 	affectedRows, _ := res.RowsAffected()
 
 	fmt.Println(fmt.Sprintf("%d user(s) injected", affectedRows))
+}
 
+func InsertPlan(plan *model.Plan, db *sql.DB) {
+	var res sql.Result
+	var err error
+	res, err = db.Exec(`
+				INSERT INTO "training"."plan" ("id", "creator_id", "trainee_id", "name") VALUES ($1, $2, $3, $4)`, plan.Id.String(), plan.CreatorId.String(), plan.TraineeId.String(), plan.Name)
+
+	if err != nil {
+		log.Fatalf("An error is returned during plan insertion %s", err.Error())
+	}
+
+	affectedRows, _ := res.RowsAffected()
+
+	fmt.Println(fmt.Sprintf("%d plan(s) injected", affectedRows))
 }

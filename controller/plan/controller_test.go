@@ -10,29 +10,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jeromedoucet/training/controller"
 	"github.com/jeromedoucet/training/controller/response"
-	"github.com/jeromedoucet/training/model"
 	"github.com/jeromedoucet/training/test"
 )
 
 func TestPlanSuite(t *testing.T) {
 
 	test.CleanDB(db)
+	insertDataSet()
 	t.Run("nominal training creation", nominalPlanCreation)
 
-	test.CleanDB(db)
 	t.Run("missing field training creation", missingFieldPlanCreation)
 
-	test.CleanDB(db)
 	t.Run("no auth training creation", notAuthenticatedPlanCreation)
 }
 
 func nominalPlanCreation(t *testing.T) {
 	var payloadResp []byte
-	userId := uuid.New()
-	test.InsertUser(&model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}, db)
 	s := httptest.NewServer(controller.InitRoutes(conf))
 	defer s.Close()
 
@@ -100,8 +95,6 @@ func nominalPlanCreation(t *testing.T) {
 }
 
 func missingFieldPlanCreation(t *testing.T) {
-	userId := uuid.New()
-	test.InsertUser(&model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}, db)
 	s := httptest.NewServer(controller.InitRoutes(conf))
 	defer s.Close()
 
@@ -146,8 +139,6 @@ func missingFieldPlanCreation(t *testing.T) {
 }
 
 func notAuthenticatedPlanCreation(t *testing.T) {
-	userId := uuid.New()
-	test.InsertUser(&model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}, db)
 	s := httptest.NewServer(controller.InitRoutes(conf))
 	defer s.Close()
 
