@@ -56,7 +56,7 @@ func nominalPlanCreation(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plan", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plans", s.URL), bytes.NewBuffer(body))
 	req.AddCookie(c)
 	client := &http.Client{}
 
@@ -121,7 +121,7 @@ func missingFieldPlanCreation(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plan", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plans", s.URL), bytes.NewBuffer(body))
 	req.AddCookie(c)
 	client := &http.Client{}
 
@@ -154,7 +154,7 @@ func notAuthenticatedPlanCreation(t *testing.T) {
 
 	body, _ := json.Marshal(payload)
 
-	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plan", s.URL), bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/app/public/plans", s.URL), bytes.NewBuffer(body))
 	client := &http.Client{}
 
 	// when
