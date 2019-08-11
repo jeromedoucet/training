@@ -8,7 +8,7 @@ import (
 	"github.com/jeromedoucet/training/model"
 )
 
-func TestToModel(t *testing.T) {
+func TestPlanToModel(t *testing.T) {
 	var err error
 	var res *model.Plan
 	creatorId := uuid.New()
