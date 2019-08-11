@@ -7,8 +7,22 @@ import (
 )
 
 var userId uuid.UUID
+var user *model.User
+var plan *model.Plan
 
 func insertDataSet() {
+	// user
 	userId = uuid.New()
-	test.InsertUser(&model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}, db)
+	user = &model.User{Id: userId, Login: "jerdct", Password: "titi_123456_tata"}
+	test.InsertUser(user, db)
+
+	// plan
+	plan = &model.Plan{
+		Id:        uuid.New(),
+		Name:      "some training plan for test",
+		CreatorId: userId,
+		TraineeId: userId,
+	}
+
+	test.InsertPlan(plan, db)
 }

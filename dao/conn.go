@@ -11,9 +11,10 @@ import (
 // Conn handle db connection and DAO
 // instanciation.
 type Conn struct {
-	db      *sql.DB
-	UserDAO *UserDAO
-	PlanDAO *PlanDAO
+	db             *sql.DB
+	UserDAO        *UserDAO
+	PlanDAO        *PlanDAO
+	PlanSessionDAO *PlanSessionDAO
 }
 
 // Open init connection to database and init all prepared statement.
@@ -27,6 +28,7 @@ func Open(conf *configuration.GlobalConf) (conn *Conn) {
 	res := &Conn{db: db}
 	res.UserDAO = createUserDAO(res.db)
 	res.PlanDAO = createPlanDAO(res.db)
+	res.PlanSessionDAO = createPlanSessionDAO(res.db)
 
 	return res
 }
