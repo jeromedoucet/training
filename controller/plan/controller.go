@@ -85,7 +85,14 @@ func CreatePlanSessionHandlerFunc(c *configuration.GlobalConf, conn *dao.Conn) f
 		planSession, dbErr = conn.PlanSessionDAO.Insert(ctx, planSession)
 
 		if dbErr != nil {
-			response.RenderError(http.StatusInternalServerError, dbErr.Message, w)
+			var status int
+			if dbErr.Type == dao.NOT_FOUND {
+				status = http.StatusNotFound
+			} else {
+				status = http.StatusInternalServerError
+			}
+
+			response.RenderError(status, dbErr.Message, w)
 			return
 		}
 

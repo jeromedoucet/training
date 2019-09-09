@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jeromedoucet/training/model"
@@ -33,7 +34,11 @@ func (p *PlanSessionDAO) Insert(ctx context.Context, planSession *model.PlanSess
 	planSession.Id = uuid.New()
 	_, err := p.insertPlanSession.ExecContext(ctx, planSession.Id.String(), planSession.PlanId.String(), planSession.Day, planSession.Description, planSession.Comments)
 	if err != nil {
-		return nil, &DbError{Message: err.Error(), Type: UNKNOWN}
+		if strings.Contains(err.Error(), "plan_session_plan_id_fkey") {
+			return nil, &DbError{Message: err.Error(), Type: NOT_FOUND}
+		} else {
+			return nil, &DbError{Message: err.Error(), Type: UNKNOWN}
+		}
 	}
 
 	return planSession, nil
