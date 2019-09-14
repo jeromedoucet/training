@@ -9,11 +9,12 @@ import (
 type PlanSession struct {
 	Id          string    `json:"id"`
 	PlanId      string    `json:"plan_id"`
-	Day         time.Time `json:"day"`
+	From        time.Time `json:"from"`
+	To          time.Time `json:"to"`
 	Description string    `json:"description"`
 	Comments    string    `json:"comments"`
 }
 
 func FromPlanSessionModel(planSession *model.PlanSession) *PlanSession {
-	return &PlanSession{Id: planSession.Id.String(), PlanId: planSession.PlanId.String(), Day: planSession.Day, Description: planSession.Description, Comments: planSession.Comments}
+	return &PlanSession{Id: planSession.Id.String(), PlanId: planSession.PlanId.String(), From: planSession.From, To: planSession.To, Description: planSession.Description, Comments: planSession.Comments}
 }

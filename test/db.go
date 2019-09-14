@@ -53,3 +53,18 @@ func InsertPlan(plan *model.Plan, db *sql.DB) {
 
 	fmt.Println(fmt.Sprintf("%d plan(s) injected", affectedRows))
 }
+
+func InsertPlanSession(planSession *model.PlanSession, db *sql.DB) {
+	var res sql.Result
+	var err error
+	res, err = db.Exec(`
+				INSERT INTO "training"."plan_session" ("id", "plan_id", "from", "to", "description", "comments") VALUES ($1, $2, $3, $4, $5, $6)`, planSession.Id.String(), planSession.PlanId.String(), planSession.From, planSession.To, planSession.Description, planSession.Comments)
+
+	if err != nil {
+		log.Fatalf("An error is returned during planSession insertion %s", err.Error())
+	}
+
+	affectedRows, _ := res.RowsAffected()
+
+	fmt.Println(fmt.Sprintf("%d planSession(s) injected", affectedRows))
+}

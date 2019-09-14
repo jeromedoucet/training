@@ -9,7 +9,8 @@ import (
 type PlanSession struct {
 	Id          uuid.UUID
 	PlanId      uuid.UUID
-	Day         time.Time
+	From        time.Time
+	To          time.Time
 	Description string
 	Comments    string
 }

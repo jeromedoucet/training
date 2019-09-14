@@ -10,8 +10,9 @@ import (
 
 type PlanSession struct {
 	PlanId      string
-	Day         *time.Time `json:"day"`
-	Description string     `json:"description"`
+	From        time.Time `json:"from"`
+	To          time.Time `json:"to"`
+	Description string    `json:"description"`
 }
 
 func (p *PlanSession) ToModel() (*model.PlanSession, error) {
@@ -28,9 +29,13 @@ func (p *PlanSession) ToModel() (*model.PlanSession, error) {
 		return nil, errors.New("Expect a non empty description")
 	}
 
-	if p.Day == nil {
+	if p.From.IsZero() {
 		return nil, errors.New("Expect a non nil day")
 	}
 
-	return &model.PlanSession{PlanId: planId, Day: *p.Day, Description: p.Description}, nil
+	if p.To.IsZero() {
+		return nil, errors.New("Expect a non nil day")
+	}
+
+	return &model.PlanSession{PlanId: planId, From: p.From, To: p.To, Description: p.Description}, nil
 }

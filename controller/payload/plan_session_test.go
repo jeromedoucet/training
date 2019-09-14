@@ -22,7 +22,15 @@ func TestPlanSessionToModel(t *testing.T) {
 	}
 
 	now := time.Now()
-	planSession.Day = &now
+	planSession.From = now
+
+	actualPlanSession, err = planSession.ToModel()
+
+	if err == nil {
+		t.Fatal("Expect non nil err")
+	}
+
+	planSession.To = now.Add(time.Hour)
 
 	actualPlanSession, err = planSession.ToModel()
 
@@ -49,7 +57,11 @@ func TestPlanSessionToModel(t *testing.T) {
 		t.Fatalf("Expect %s, got %s", planSession.Description, actualPlanSession.Description)
 	}
 
-	if !actualPlanSession.Day.Equal(*planSession.Day) {
-		t.Fatalf("Expect %v, got %v", *planSession.Day, actualPlanSession.Day)
+	if !actualPlanSession.From.Equal(planSession.From) {
+		t.Fatalf("Expect %v, got %v", planSession.From, actualPlanSession.From)
+	}
+
+	if !actualPlanSession.To.Equal(planSession.To) {
+		t.Fatalf("Expect %v, got %v", planSession.To, actualPlanSession.To)
 	}
 }

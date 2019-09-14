@@ -15,7 +15,7 @@ import (
 	"github.com/jeromedoucet/training/test"
 )
 
-func TestPlanSessionSuite(t *testing.T) {
+func TestPlanSessionCreationSuite(t *testing.T) {
 
 	test.CleanDB(db)
 	insertDataSet()
@@ -24,6 +24,7 @@ func TestPlanSessionSuite(t *testing.T) {
 	t.Run("plan session creation when not autheticated", nominalPlanSessionCreation)
 	t.Run("missing field during plan session creation", missingFieldPlanSessionCreation)
 	t.Run("no plan when tempting to create a plan session", PlanSession404)
+	// todo, more than a Day, prefers two instant in time. begin, end.
 }
 
 func nominalPlanSessionCreation(t *testing.T) {
@@ -45,10 +46,12 @@ func nominalPlanSessionCreation(t *testing.T) {
 	}
 
 	payload := struct {
-		Day         time.Time `json:"day"`
+		From        time.Time `json:"from"`
+		To          time.Time `json:"to"`
 		Description string    `json:"description"`
 	}{
 		time.Now(),
+		time.Now().Add(time.Hour * 2),
 		"10 X 1' VMA",
 	}
 
@@ -78,10 +81,12 @@ func PlanSessionNotAuthenticated(t *testing.T) {
 	defer s.Close()
 
 	payload := struct {
-		Day         time.Time `json:"day"`
+		From        time.Time `json:"from"`
+		To          time.Time `json:"to"`
 		Description string    `json:"description"`
 	}{
 		time.Now(),
+		time.Now().Add(time.Hour * 2),
 		"10 X 1' VMA",
 	}
 
@@ -167,10 +172,12 @@ func PlanSession404(t *testing.T) {
 	}
 
 	payload := struct {
-		Day         time.Time `json:"day"`
+		From        time.Time `json:"from"`
+		To          time.Time `json:"to"`
 		Description string    `json:"description"`
 	}{
 		time.Now(),
+		time.Now().Add(time.Hour * 2),
 		"10 X 1' VMA",
 	}
 
@@ -192,4 +199,11 @@ func PlanSession404(t *testing.T) {
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("Expected 404 return code. Got %d with body %s", resp.StatusCode, string(payloadResp))
 	}
+}
+
+func TestPlanSessionReadSuite(t *testing.T) {
+
+	test.CleanDB(db)
+	insertDataSet()
+
 }
