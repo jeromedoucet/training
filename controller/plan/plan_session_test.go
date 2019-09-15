@@ -2,6 +2,7 @@ package plan_test
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jeromedoucet/training/controller"
+	"github.com/jeromedoucet/training/controller/response"
 	"github.com/jeromedoucet/training/test"
 )
 
@@ -206,4 +208,99 @@ func TestPlanSessionReadSuite(t *testing.T) {
 	test.CleanDB(db)
 	insertDataSet()
 
+	t.Run("find to plan sessions without errors", nominalPlanSessionFindWithBound)
+
+	// todo without bound
+	// todo 404
+
+}
+
+func nominalPlanSessionFindWithBound(t *testing.T) {
+	var payloadResp []byte
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	expTime := time.Now().Add(2 * time.Minute)
+
+	tok := test.CreateToken(conf.JwtSecret, expTime, userId, t)
+
+	c := &http.Cookie{
+		Name:     "auth",
+		Value:    tok,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  expTime,
+	}
+
+	from := time.Date(2019, time.September, 30, 0, 0, 0, 0, time.UTC)
+	to := time.Date(2019, time.October, 4, 0, 0, 0, 0, time.UTC)
+
+	encFrom, _ := from.MarshalText()
+	encTo, _ := to.MarshalText()
+
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/app/public/plan/%s/sessions?from=%s&to=%s", s.URL, plan.Id.String(), base64.StdEncoding.EncodeToString(encFrom), base64.StdEncoding.EncodeToString(encTo)), nil)
+	req.AddCookie(c)
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	payloadResp, _ = ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Expected 200 return code. Got %d with body %s", resp.StatusCode, string(payloadResp))
+	}
+
+	var plans []*response.PlanSession
+
+	json.Unmarshal(payloadResp, &plans)
+
+	if len(plans) != 2 {
+		t.Fatalf("Expect %d, got %d", 2, len(plans))
+	}
+
+	if plans[0].Id != firstSession.Id.String() {
+		t.Fatal("Expect to get the first session, but get another")
+	}
+
+	if !plans[0].From.Equal(firstSession.From) {
+		t.Fatalf("Expect %s, got %s", firstSession.From.String(), plans[0].From.String())
+	}
+
+	if !plans[0].To.Equal(firstSession.To) {
+		t.Fatalf("Expect %s, got %s", firstSession.To.String(), plans[0].To.String())
+	}
+
+	if plans[0].Description != firstSession.Description {
+		t.Fatalf("Expect %s, got %s", firstSession.Description, plans[0].Description)
+	}
+
+	if plans[0].Comments != firstSession.Comments {
+		t.Fatalf("Expect %s, got %s", firstSession.Comments, plans[0].Comments)
+	}
+
+	if plans[1].Id != secondSession.Id.String() {
+		t.Fatal("Expect to get the second session, but get another")
+	}
+
+	if !plans[1].From.Equal(secondSession.From) {
+		t.Fatalf("Expect %s, got %s", secondSession.From.String(), plans[1].From.String())
+	}
+
+	if !plans[1].To.Equal(secondSession.To) {
+		t.Fatalf("Expect %s, got %s", secondSession.To.String(), plans[1].To.String())
+	}
+
+	if plans[1].Description != secondSession.Description {
+		t.Fatalf("Expect %s, got %s", secondSession.Description, plans[1].Description)
+	}
+
+	if plans[1].Comments != secondSession.Comments {
+		t.Fatalf("Expect %s, got %s", secondSession.Comments, plans[1].Comments)
+	}
 }
