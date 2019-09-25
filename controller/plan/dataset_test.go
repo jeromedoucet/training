@@ -32,8 +32,8 @@ func insertDataSet() {
 	firstSession = &model.PlanSession{
 		Id:          uuid.New(),
 		PlanId:      plan.Id,
-		From:        time.Date(2019, time.September, 30, 12, 0, 0, 0, time.UTC),
-		To:          time.Date(2019, time.September, 30, 13, 0, 0, 0, time.UTC),
+		From:        time.Date(2018, time.September, 30, 12, 0, 0, 0, time.UTC),
+		To:          time.Date(2018, time.September, 30, 13, 0, 0, 0, time.UTC),
 		Description: "Long run in the mountains.",
 		Comments:    "Nice training !",
 	}
@@ -42,8 +42,8 @@ func insertDataSet() {
 	secondSession = &model.PlanSession{
 		Id:          uuid.New(),
 		PlanId:      plan.Id,
-		From:        time.Date(2019, time.October, 1, 12, 0, 0, 0, time.UTC),
-		To:          time.Date(2019, time.October, 1, 13, 0, 0, 0, time.UTC),
+		From:        time.Date(2018, time.October, 1, 12, 0, 0, 0, time.UTC),
+		To:          time.Date(2018, time.October, 1, 13, 0, 0, 0, time.UTC),
 		Description: "VMA interval training (1' X 1')",
 	}
 	test.InsertPlanSession(secondSession, db)
@@ -51,8 +51,8 @@ func insertDataSet() {
 	thirdSession = &model.PlanSession{
 		Id:          uuid.New(),
 		PlanId:      plan.Id,
-		From:        time.Date(2019, time.October, 5, 12, 0, 0, 0, time.UTC),
-		To:          time.Date(2019, time.October, 5, 13, 0, 0, 0, time.UTC),
+		From:        time.Date(2018, time.October, 5, 12, 0, 0, 0, time.UTC),
+		To:          time.Date(2018, time.October, 5, 13, 0, 0, 0, time.UTC),
 		Description: "VMA interval training (2' X 2')",
 	}
 	test.InsertPlanSession(thirdSession, db)

@@ -13,6 +13,7 @@ import (
 type PlanDAO struct {
 	db         *sql.DB
 	insertPlan *sql.Stmt
+	exists     *sql.Stmt
 }
 
 func createPlanDAO(db *sql.DB) *PlanDAO {
@@ -21,6 +22,12 @@ func createPlanDAO(db *sql.DB) *PlanDAO {
 
 	if p.insertPlan, err = p.db.Prepare(`
 		INSERT INTO "plan" ("id", "creator_id", "trainee_id", "name") VALUES ($1, $2, $3, $4)
+	`); err != nil {
+		log.Fatalf("An error is returned during inserPlan statement initialization %s", err.Error())
+	}
+
+	if p.exists, err = p.db.Prepare(`
+		SELECT 1 FROM "plan" where "id" = $1
 	`); err != nil {
 		log.Fatalf("An error is returned during inserPlan statement initialization %s", err.Error())
 	}
@@ -37,4 +44,15 @@ func (p *PlanDAO) Insert(ctx context.Context, plan *model.Plan) (*model.Plan, *D
 	}
 
 	return plan, nil
+}
+
+func (p *PlanDAO) Exists(ctx context.Context, id string) (bool, *DbError) {
+	rows, err := p.exists.QueryContext(ctx, id)
+
+	if err != nil {
+		return false, &DbError{Message: err.Error(), Type: UNKNOWN}
+	}
+	defer rows.Close()
+
+	return rows.Next(), nil
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -121,13 +123,14 @@ func createPlanSession(conn *dao.Conn, ctx context.Context, w http.ResponseWrite
 }
 
 func listPlanSession(conn *dao.Conn, ctx context.Context, w http.ResponseWriter, r *http.Request) {
+	var planExist bool
+	var dbErr *dao.DbError
 	var err error
 	var planId string
 	var rawFrom []byte
 	var rawTo []byte
 	from := time.Time{}
 	to := time.Time{}
-	var dbErr *dao.DbError
 	var sessions []*model.PlanSession
 	var res []*response.PlanSession
 	var body []byte
@@ -135,11 +138,24 @@ func listPlanSession(conn *dao.Conn, ctx context.Context, w http.ResponseWriter,
 	path := route.SplitPath(r.URL.Path)
 	planId = path[len(path)-2]
 
+	planExist, dbErr = conn.PlanDAO.Exists(ctx, planId)
+
+	if dbErr != nil {
+		response.RenderError(http.StatusInternalServerError, dbErr.Message, w)
+		return
+	}
+
+	if !planExist {
+		response.RenderError(http.StatusNotFound, fmt.Sprintf("No plan with id %s found", planId), w)
+		return
+	}
+
 	q := r.URL.Query()
 
 	rawFrom, err = base64.StdEncoding.DecodeString(q.Get("from"))
 
 	if err != nil {
+		log.Println(fmt.Sprintf("Error when decoding from param : %s", err.Error()))
 		response.RenderError(http.StatusBadRequest, err.Error(), w)
 		return
 	}
@@ -147,22 +163,31 @@ func listPlanSession(conn *dao.Conn, ctx context.Context, w http.ResponseWriter,
 	rawTo, err = base64.StdEncoding.DecodeString(q.Get("to"))
 
 	if err != nil {
+		log.Println(fmt.Sprintf("Error when deconding to param : %s", err.Error()))
 		response.RenderError(http.StatusBadRequest, err.Error(), w)
 		return
 	}
 
-	err = from.UnmarshalText(rawFrom)
+	if len(rawFrom) > 0 {
+		err = from.UnmarshalText(rawFrom)
 
-	if err != nil {
-		response.RenderError(http.StatusBadRequest, err.Error(), w)
-		return
+		if err != nil {
+			log.Println(fmt.Sprintf("Error when parsing from param : %s", err.Error()))
+			response.RenderError(http.StatusBadRequest, err.Error(), w)
+			return
+		}
 	}
 
-	err = to.UnmarshalText(rawTo)
+	if len(rawTo) > 0 {
+		err = to.UnmarshalText(rawTo)
 
-	if err != nil {
-		response.RenderError(http.StatusBadRequest, err.Error(), w)
-		return
+		if err != nil {
+			log.Println(fmt.Sprintf("Error when parsing to param : %s", err.Error()))
+			response.RenderError(http.StatusBadRequest, err.Error(), w)
+			return
+		}
+	} else {
+		to = time.Now()
 	}
 
 	sessions, dbErr = conn.PlanSessionDAO.List(ctx, planId, from, to)
