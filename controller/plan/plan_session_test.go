@@ -210,6 +210,8 @@ func TestPlanSessionReadSuite(t *testing.T) {
 	t.Run("find to plan sessions with bounds", nominalPlanSessionFindWithBound)
 	t.Run("find to plan sessions without bounds", nominalPlanSessionFindWithoutBound)
 	t.Run("find to plan sessions unknown plan", nominalPlanSessionFindUnknownPlan)
+	t.Run("find to plan sessions not authenticated", nominalPlanSessionFindNotAuth)
+	// nominalPlanSessionFindNotAuth
 
 	// todo 404
 	// todo 401
@@ -397,5 +399,26 @@ func nominalPlanSessionFindUnknownPlan(t *testing.T) {
 	if resp.StatusCode != http.StatusNotFound {
 		t.Fatalf("Expected 404 return code. Got %d with body %s", resp.StatusCode, string(payloadResp))
 	}
+}
 
+func nominalPlanSessionFindNotAuth(t *testing.T) {
+	var payloadResp []byte
+	s := httptest.NewServer(controller.InitRoutes(conf))
+	defer s.Close()
+
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/app/public/plan/%s/sessions", s.URL, plan.Id.String()), nil)
+	client := &http.Client{}
+
+	// when
+	resp, err := client.Do(req)
+
+	// then
+	if err != nil {
+		t.Fatalf("Expected to have no error, but got %s", err.Error())
+	}
+
+	payloadResp, _ = ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("Expected 401 return code. Got %d with body %s", resp.StatusCode, string(payloadResp))
+	}
 }
